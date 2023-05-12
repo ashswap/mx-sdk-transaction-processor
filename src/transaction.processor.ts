@@ -591,6 +591,11 @@ export class TransactionProcessor {
     return shardInfo.status.erd_nonce;
   }
 
+  private async getCurrentFinalNonce(shardId: number): Promise<number> {
+    const shardInfo = await this.gatewayGet(`network/status/${shardId}`);
+    return shardInfo.status.erd_highest_final_nonce;
+  }
+
   private async gatewayGet(path: string): Promise<any> {
     const gatewayUrl =
       this.options.gatewayUrl ?? "https://gateway.multiversx.com";
@@ -610,7 +615,7 @@ export class TransactionProcessor {
 
   private async getCurrentNonces(): Promise<{ [key: number]: number }> {
     const currentNonces = await Promise.all(
-      this.shardIds.map((shardId) => this.getCurrentNonce(shardId))
+      this.shardIds.map((shardId) => this.getCurrentFinalNonce(shardId))
     );
 
     const result: { [key: number]: number } = {};
